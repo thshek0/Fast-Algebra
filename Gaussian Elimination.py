@@ -15,17 +15,17 @@ dim = int(input("What is the number of unknown variables? "))
 numOfOps = 0
 ratio = 1
 ans = np.zeros(dim)
-# aug = np.zeros((dim, dim+1))
+aug = np.zeros((dim, dim+1))
 valid = True
-'''
+
 # Ask for input of augmented matrix (system)
 for i in range(dim):
     for j in range(dim+1):
         # e.g. What is M11/ M34...
         aug[i][j] = float(input("What is M" + str(i+1) + str(j+1) + "? "))
-'''
+
 # if u need random test case...
-aug = random.rand(dim, dim+1)
+# aug = random.rand(dim, dim+1)
 print("Inputted Matrix: ")
 printMatrix()
 
