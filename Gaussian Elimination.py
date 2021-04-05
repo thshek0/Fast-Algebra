@@ -2,9 +2,19 @@ import numpy as np
 from numpy import random
 
 
+# Ask users to input system of linear equation into augmented matrix of size = dim
+def inputMatrix():
+    mat = np.zeros((dim, dim + 1))
+    for x in range(dim):
+        for y in range(dim+1):
+            # e.g. What is M11/ M34...
+            mat[x][y] = float(input("What is M" + str(x + 1) + str(y + 1) + "? "))
+    return mat
+
+
 # Function that prints augmented matrix
-def printMatrix():
-    # print("The matrix:")
+def printMatrix(message):
+    print(message)
     for x in range(dim):
         for y in range(dim + 1):
             print("%12.4f" % aug[x][y], end=" ")
@@ -15,19 +25,13 @@ dim = int(input("What is the number of unknown variables? "))
 numOfOps = 0
 ratio = 1
 ans = np.zeros(dim)
-aug = np.zeros((dim, dim+1))
+# aug = np.zeros((dim, dim+1))
 valid = True
 
 # Ask for input of augmented matrix (system)
-for i in range(dim):
-    for j in range(dim+1):
-        # e.g. What is M11/ M34...
-        aug[i][j] = float(input("What is M" + str(i+1) + str(j+1) + "? "))
-
-# if u need random test case...
-# aug = random.rand(dim, dim+1)
-print("Inputted Matrix: ")
-printMatrix()
+aug = inputMatrix()
+# aug = random.rand(dim, dim+1)     # if u need random test case...
+printMatrix("Inputted Matrix: ")
 
 # To Row Echelon Form
 for pivot in range(dim):
@@ -42,8 +46,7 @@ for pivot in range(dim):
     if aug[pivot][pivot] == 0:
         valid = False
         break
-    # print("Rows interchange" + str(numOfOps))
-    # printMatrix()
+    # printMatrix("Rows interchange" + str(numOfOps))
 
     # 2. Reduce the elements under the pivot to be 0
     for i in range(pivot+1, dim):
@@ -53,10 +56,8 @@ for pivot in range(dim):
             for j in range(pivot, dim+1):
                 aug[i][j] -= ratio * aug[pivot][j]
             numOfOps += 1
-    # print("Rows reduction" + str(numOfOps))
-    # printMatrix()
-print("Row Reduced Form: ")
-printMatrix()
+    # printMatrix("Rows reduction" + str(numOfOps))
+printMatrix("Row Reduced Form: ")
 
 if valid:
     # Normalize each row such that pivot position = 1
@@ -65,7 +66,7 @@ if valid:
         for j in range(i, dim+1):
             aug[i][j] /= ratio
             numOfOps += 1
-    # printMatrix()
+    # printMatrix("After normalize: ")
 
     # Back Substitution
     for i in range(dim-1, -1, -1):
@@ -77,8 +78,7 @@ if valid:
             aug[j][dim] -= ratio * aug[j][i]
             numOfOps += 1
             aug[j][i] = 0
-    print("Reduced Row Echelon Form: ")
-    printMatrix()
+    printMatrix("Reduced Row Echelon Form: ")
 
     for i in range(dim):
         print("X" + str(i), "=", ans[i])
