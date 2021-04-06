@@ -21,7 +21,7 @@ def printMatrix(message, dim, aug):
 
 
 def gauEli(n, aug):
-    numOfOps = 0
+    # numOfOps = 0
     ans = np.zeros(n)
     valid = True
 
@@ -33,7 +33,7 @@ def gauEli(n, aug):
                 if aug[x][pivot] != 0:
                     # Swapping rows
                     aug[[pivot, x]] = aug[[x, pivot]]
-                    numOfOps += 1
+                    # numOfOps += 1
         # if rows with pivot != 0 not found -> escape
         if aug[pivot][pivot] == 0:
             valid = False
@@ -47,7 +47,7 @@ def gauEli(n, aug):
                 # Adding a multiple of top row to current row to make it 0
                 for y in range(pivot, n + 1):
                     aug[x][y] -= ratio * aug[pivot][y]
-                numOfOps += 1
+                # numOfOps += 1
         # printMatrix("Rows reduction" + str(numOfOps), dim, aug)
     # printMatrix("Row Reduced Form: ", dim, aug)
 
@@ -57,7 +57,7 @@ def gauEli(n, aug):
             ratio = aug[x][x]
             for y in range(x, n + 1):
                 aug[x][y] /= ratio
-                numOfOps += 1
+                # numOfOps += 1
         # printMatrix("After normalize: ", dim, aug)
 
         # Back Substitution
@@ -68,24 +68,26 @@ def gauEli(n, aug):
             for y in range(x):
                 ratio = aug[x][n]
                 aug[y][n] -= ratio * aug[y][x]
-                numOfOps += 1
+                # numOfOps += 1
                 aug[y][x] = 0
         # printMatrix("Reduced Row Echelon Form: ", dim, aug)
 
-    return ans, numOfOps, valid
+    # return ans, numOfOps, valid
+    return ans, valid
 
 
 def main():
     dim = int(input("What is the number of unknown variables? "))
     aug = inputMatrix(dim)
     printMatrix("Inputted matrix:", dim, aug)
-    sol, numOfOps, inv = gauEli(dim, aug)
+    # sol, numOfOps, inv = gauEli(dim, aug)
+    sol, inv = gauEli(dim, aug)
     if inv:
         for i in range(dim):
             print("X" + str(i), "=", sol[i])
     else:
         print("There is no unique solution for the system.")
-    print("no. of operations = " + str(numOfOps))
+    # print("no. of operations = " + str(numOfOps))
 
 
 if __name__ == "__main__":
