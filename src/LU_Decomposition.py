@@ -1,61 +1,95 @@
-from math import log10
-from threading import Thread
-from random import randint
+import numpy as np
+import matplotlib.pyplot as plt
+import scipy.linalg as la
 from time import time
-from pprint import pprint
+from Gaussian_Elimination import gauEli
+from basic_function import genddm
+from Gauss_Seidel_Iterative import gsi
+from Jacobi_Iterative import jacobi
+from sklearn.datasets import make_spd_matrix
+
+numOfIter = 20
+maxSize = 200
+temp = np.zeros(numOfIter)
+timeArr = np.zeros(maxSize + 1)
+
+"""# Gaussian Elimination
+for dim in range(1, maxSize+1):
+    for i in range(numOfIter):
+        aug = random.rand(dim, dim+1)
+
+        # start program
+        start = time()
+        gauEli(dim, aug)
+        temp[i] = time() - start
+
+    timeArr[dim] = np.average(temp) * 1000
+plt.plot(timeArr, label="Gaussian Elimination")"""
 
 
-def threadCompare(A, B, i, j, maxi):
-    if maxi[0] < A[i][j]: maxi[0] = A[i][j]
-    if maxi[0] < B[i][j]: maxi[0] = B[i][j]
+# Gauss-Seidel Iterative
+for dim in range(1, maxSize+1):
+    for i in range(numOfIter):
+        A = genddm(dim)
+        b = np.random.rand(dim)
+        sol = np.zeros(dim)
+
+        start = time()
+        sol, fail = gsi(dim, A, b, sol, False)
+        temp[i] = time() - start
+
+    timeArr[dim] = np.average(temp) * 1000
+plt.plot(timeArr, label="Gauss-Seidel Iterative")
 
 
-def threadOne_New(A, C, i, j, P):
-    C[i] = C[i] * 10 ** (P) + A[i][j]
+# Jacobi Iterative
+for dim in range(1, maxSize+1):
+    for i in range(numOfIter):
+        A = genddm(dim)
+        b = np.random.rand(dim)
+        sol = np.zeros(dim)
 
+        start = time()
+        sol, fail = jacobi(dim, A, b, sol, False)
+        temp[i] = time() - start
 
-def threadTwo_New(B, D, i, j, P, N):
-    D[j] = D[j] * 10 ** (P) + B[N - 1 - i][j]
+    timeArr[dim] = np.average(temp) * 1000
+plt.plot(timeArr, label="Jacobi Iterative")
 
+# Cholesky Decomposition
+for dim in range(1, maxSize + 1):
+    for i in range(numOfIter):
+        A = make_spd_matrix(dim)
+        b = np.random.rand(dim)
 
-def threadThree_New(E, C, D, i, j, P, N):
-    E[i][j] = int(C[i] * D[j] / (10 ** (P * (N - 1)))) % (10 ** P)
+        start = time()
+        c, low = la.cho_factor(A)
+        sol = la.cho_solve((c, low), b)
+        temp[i] = time() - start
 
+    timeArr[dim] = np.average(temp) * 1000
+plt.plot(timeArr, label="Cholesky Decomposition")
 
-def new_matrix_multiply(A, B):
-    N = len(A)
-    maxi = [0]
-    threadSeries = [[Thread(target=threadCompare, args=(A, B, i, j, maxi,)) for j in range(N)] for i in range(N)]
-    for i in range(N):
-        for j in range(N): threadSeries[i][j].start()
-    for i in range(N):
-        for j in range(N): threadSeries[i][j].join()
-    M = int(log10(maxi[0])) + 1
-    P = int(log10((10 ** (2 * M) - 1) * N)) + 1
-    C, D, E = [0 for i in range(N)], [0 for i in range(N)], [[0 for i in range(N)] for j in range(N)]
-    threadSeriesOne = [[Thread(target=threadOne_New, args=(A, C, i, j, P,)) for j in range(N)] for i in range(N)]
-    threadSeriesTwo = [[Thread(target=threadTwo_New, args=(B, D, i, j, P, N,)) for j in range(N)] for i in range(N)]
-    for i in range(N):
-        for j in range(N): threadSeriesOne[i][j].start()
-    for i in range(N):
-        for j in range(N): threadSeriesOne[i][j].join()
-    for i in range(N):
-        for j in range(N): threadSeriesTwo[i][j].start()
-    for i in range(N):
-        for j in range(N): threadSeriesTwo[i][j].join()
-    threadSeriesThree = [[Thread(target=threadThree_New, args=(E, C, D, i, j, P, N,)) for j in range(N)] for i in
-                         range(N)]
-    for i in range(N):
-        for j in range(N): threadSeriesThree[i][j].start()
-    for i in range(N):
-        for j in range(N): threadSeriesThree[i][j].join()
-    return E
+# LU Decomposition
+for dim in range(1, maxSize + 1):
+    for i in range(numOfIter):
+        A = np.random.rand(dim, dim)
+        b = np.random.rand(dim)
 
+        start = time()
+        c, low = la.lu_factor(A)
+        sol = la.lu_solve((c, low), b)
+        temp[i] = time() - start
 
-for size in range(1, 21):
-    A = [[randint(1, 15) for j in range(size)] for i in range(size)]
-    B = [[randint(1, 15) for j in range(size)] for i in range(size)]
-    start = time()
-    new_matrix_multiply(A, B)
-    end = time()
-    print('Size', size, 'Expected time consumed', int((end - start) * 10 ** 6 / size / size), ' microseconds')
+    timeArr[dim] = np.average(temp) * 1000
+plt.plot(timeArr, label="LU Decomposition")
+
+# plot graph
+plt.title("Fast Linear Algebra (N=20)")
+plt.xlabel("Size")
+plt.ylabel("Time (ms)")
+plt.xlim([1, maxSize])
+plt.legend()
+plt.grid()
+
+plt.show()

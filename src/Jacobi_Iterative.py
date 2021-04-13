@@ -1,22 +1,19 @@
-# improved version of Jacobi Iterative
-# condition: converge system, i.e. diagonally dominant
-# not suitable for all systems, e.g. [1,2,3][4,5,6]
+# Jacobi Iterative
 import numpy as np
 from basic_function import inputMatrix, printMatrix
 ITERATION_LIMIT = 1000
 
 
-def gsi(dim, A, b, sol, mes):
+def jacobi(dim, A, b, sol, mes):
     fail = False
     for it_count in range(ITERATION_LIMIT):
         if it_count != 0 and mes:
             print("Iteration " + str(it_count) + ": " + str(sol))
         sol_new = np.zeros(dim)
-
         for i in range(dim):
-            s1 = np.dot(A[i, :i], sol_new[:i])
-            s2 = np.dot(A[i, i + 1:], sol[i + 1:])
-            sol_new[i] = (b[i] - s1 - s2) / A[i][i]
+            s = np.dot(A[i,:], sol)
+            s = s - A[i,i] * sol[i]
+            sol_new[i] = (b[i] - s) / A[i][i]
 
         # end if nearly same with previous sol (with tolerance)
         if np.allclose(sol, sol_new, atol=1e-8, rtol=0.):
@@ -36,7 +33,7 @@ def main():
     A, b = inputMatrix(dim)
     sol = np.zeros(dim)
     printMatrix("Inputted matrix", dim, A, b)
-    sol, fail = gsi(dim, A, b, sol, True)
+    sol, fail = jacobi(dim, A, b, sol, True)
 
     # print message
     print("Solution:" + str(sol))
