@@ -4,6 +4,7 @@
 import numpy as np
 from basic_function import inputMatrix, printMatrix
 
+
 def gsi(dim, A, b, sol, mes, limit):
     fail = False
     for it_count in range(limit):
